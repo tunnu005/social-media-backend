@@ -20,11 +20,11 @@ function chatHandler(io, socket) {
         console.log(`Sending private message to ${receiverSocketId}`);
 
         if (receiverSocketId) {
-            SendMessageSocket(senderId, receiverId,message)
+            // SendMessageSocket(senderId, receiverId,message)
             io.to(receiverSocketId).emit('receive-message', { senderId, message });
             console.log(`Private message sent to ${receiverId}`);
         }else{
-            SendMessageSocket(senderId, receiverId,message);
+            // SendMessageSocket(senderId, receiverId,message);
         }
     });
 
