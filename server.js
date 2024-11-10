@@ -11,6 +11,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { Server as SocketIOServer } from 'socket.io';
+import redisClient from './middleware/redisClient.js'
 import http from 'http';
 import chatHandler from './socket/chatHandler.js';
 
@@ -72,7 +73,7 @@ const io = new SocketIOServer(server, {
 // Socket.IO Event Handling
 io.on('connection', (socket) => {
     console.log(`Socket connected: ${socket.id}`);
-    chatHandler(io, socket);
+    chatHandler(io, socket,redisClient);
 });
 
 // Start Server
