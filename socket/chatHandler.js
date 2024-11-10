@@ -20,7 +20,7 @@ function chatHandler(io, socket) {
             const receiverSocketId = onlineUsers.get(receiverId);
             
             // Save the message to the database
-            await SendMessageSocket(senderId, receiverId, message);
+            // await SendMessageSocket(senderId, receiverId, message);
     
             // Send the real-time message only if the receiver is online
             if (receiverSocketId) {
