@@ -14,20 +14,26 @@ function chatHandler(io, socket) {
     });
 
     // Listen for private messages
-    socket.on('private-message', ({ senderId, receiverId, message }) => {
-        console.log(`Private message from ${senderId} to ${receiverId}: ${message}`);
-        const receiverSocketId = onlineUsers.get(receiverId);
-        console.log(`Sending private message to ${receiverSocketId}`);
-
-        if (receiverSocketId) {
-            // SendMessageSocket(senderId, receiverId,message)
-            io.to(receiverSocketId).emit('receive-message', { senderId, message });
-            console.log(`Private message sent to ${receiverId}`);
-        }else{
-            // SendMessageSocket(senderId, receiverId,message);
+    socket.on('private-message', async ({ senderId, receiverId, message }) => {
+        try {
+            console.log(`Private message from ${senderId} to ${receiverId}: ${message}`);
+            const receiverSocketId = onlineUsers.get(receiverId);
+            
+            // Save the message to the database
+            await SendMessageSocket(senderId, receiverId, message);
+    
+            // Send the real-time message only if the receiver is online
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit('receive-message', { senderId, message });
+                console.log(`Private message sent to ${receiverSocketId}`);
+            } else {
+                console.log(`User ${receiverId} is offline, message saved for later.`);
+            }
+        } catch (error) {
+            console.error("Failed to save message:", error);
         }
     });
-
+    
     // Handle user disconnect
     socket.on('disconnect', () => {
         onlineUsers.forEach((value, key) => {
