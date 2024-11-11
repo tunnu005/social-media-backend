@@ -11,6 +11,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post('/create', auth, upload.single('file'), createPost);
 router.get('/getpost/:userId', getPosts);
 router.get('/getHome/:page/:limit',auth,gethomepost)
-router.post('/addlike',addLike)
+router.post('/addlike',auth,addLike)
 
 export default router
