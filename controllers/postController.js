@@ -72,7 +72,11 @@ export const gethomepost = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate('userId', 'username profilePic');
+      .populate('userId', 'username profilePic')
+      .populate({
+        path: 'comments.userId',
+        select: 'username profilePic', // Populate userId for each comment
+      });
 
     const postsWithLikeStatus = posts.map((post) => ({
       ...post.toObject(),
@@ -103,5 +107,35 @@ export const addLike = async (req, res) => {
       return res.status(200).json({ success: true });
   } catch (error) {
       return res.status(500).json({ error: error.message });
+  }
+};
+
+
+export const addComment = async (req, res) => {
+  const { postId } = req.body; // ID of the post being commented on
+  const { text } = req.body; // Comment text
+  const userId = req.userId; // ID of the user making the comment (assumed from authentication)
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Create a new comment
+    const comment = {
+      userId,
+      text,
+      createdAt: new Date(),
+    };
+
+    // Add the comment to the post's comments array
+    post.comments.push(comment);
+    await post.save();
+
+    res.status(201).json({ message: "Comment added successfully", comment });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ error: "Failed to add comment" });
   }
 };
