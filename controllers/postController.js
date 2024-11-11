@@ -81,3 +81,29 @@ res.status(200).json(posts || []); // Return empty array if no posts found
     res.status(500).json({ error: 'Failed to fetch posts' });
   }
 };
+
+export const addLike = async (req, res) => {
+  try {
+      const { postId } = req.body;
+      const userId = req.userId;
+      const post = await Post.findById(postId);
+
+      // Check if the user has already liked the post
+      const hasLiked = post.likedBy.includes(userId);
+
+      if (hasLiked) {
+          // User already liked, so we remove the like
+          post.likes -= 1;
+          post.likedBy = post.likedBy.filter(id => id.toString() !== userId);
+      } else {
+          // User has not liked, so we add the like
+          post.likes += 1;
+          post.likedBy.push(userId);
+      }
+
+      await post.save();
+      return res.status(200).json({ likes: post.likes });
+  } catch (error) {
+      return res.status(500).json({ error: error.message });
+  }
+};
